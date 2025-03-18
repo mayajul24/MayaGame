@@ -49,7 +49,6 @@ socket.on("joinRoom", ({ playerName, roomId }) => {
   io.to(roomId).emit("roomPlayers", rooms[roomId]);
 });
   
-
   // Handle game start
   socket.on("startGame", (roomId) => {
     console.log(`Game started in room: ${roomId}`);
@@ -70,7 +69,20 @@ socket.on("joinRoom", ({ playerName, roomId }) => {
     // Notify players that the game is starting
     
   });
-
+  socket.on("sendAnswers", ({ roomId, playerName, answers }) => {
+    console.log(`Received answers from ${playerName} in room ${roomId}:`, answers);
+  
+    // Ensure room exists in the answers object
+    if (!playerAnswers[roomId]) {
+      playerAnswers[roomId] = {};
+    }
+  
+    // Store player's answers
+    playerAnswers[roomId][playerName] = answers;
+  
+    // Optionally, broadcast updated answers to the room
+    io.to(roomId).emit("updateAnswers", playerAnswers[roomId]);
+  });
   // When a player disconnects
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
